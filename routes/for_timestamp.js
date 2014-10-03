@@ -6,6 +6,10 @@ var send_response = route_helper.send_response;
 var router = express.Router();
 var mongoose;
 
+router.get("/at", function(req, res) {
+  res.end("Hi there!");
+});
+
 module.exports.initialize = function(_mongoose) {
   mongoose = _mongoose;
   return router;
