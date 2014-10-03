@@ -9,6 +9,7 @@ var mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/wifi");
 
 var data_for_timestamp_route = require("./routes/for_timestamp").initialize(mongoose);
+var data_within_range_route= require("./routes/within_range").initialize(mongoose);
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use("/data", data_for_timestamp_route);
+app.use("/data", data_within_range_route);
 
 console.log("Listening on port 8080");
 app.listen(8080);
