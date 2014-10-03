@@ -1,21 +1,5 @@
 (function() {
 
-  var draw_circles_for_data = function(access_data) {
-    var wifi_point;
-    var lat;
-    var lon;
-    var num_connected;
-    for (var k in access_data) {
-      wifi_point = k.split(",");
-      lat = parseFloat(wifi_point[0]); 
-      lon = parseFloat(wifi_point[1]);
-      num_connected = access_data[k];
-      if (!circle_for_lat_lon.hasOwnProperty([lat, lon])) {
-        circle_for_lat_lon[[lat, lon]] = L.circle([lat, lon], 100).addTo(map);
-      }
-      circle_for_lat_lon[[lat, lon]].setRadius(num_connected / 2);
-    }
-  }; 
 
   var map;
   var timestamp_manager;
@@ -28,6 +12,15 @@
   var btn_forward;
   var btn_backward;
   var current_index;
+  var circle_for_lat_lon = {};
+
+  $(document).ready(function() {
+    async.series([
+      setup_map,
+      setup_variables,
+      setup_handlers
+    ]);
+  });
 
   var setup_map = function(callback) {
     map = L.map('map').setView([42.360183,-71.090469], 17);
@@ -57,6 +50,7 @@
     btn_backward.click(backward_handler);
     current_index = 0;
     set_for_date_from_current_index();
+    draw_map_for_current_index();
     callback(null);
   };
 
@@ -67,17 +61,38 @@
     } else {
       current_index = timestamp_manager.nearby_index(timestamp);
       set_for_date_from_current_index();
+      draw_map_for_current_index();
     }
+  };
+
+  var disable_all = function() {
+    btn_go_to_time.addClass("disabled");
+    btn_forward.addClass("disabled");
+    btn_backward.addClass("disabled");
+    btn_go_to_time.prop("disabled", true);
+    btn_forward.prop("disabled", true);
+    btn_backward.prop("disabled", true);
+  };
+
+  var enable_all = function() {
+    btn_go_to_time.removeClass("disabled");
+    btn_forward.removeClass("disabled");
+    btn_backward.removeClass("disabled");
+    btn_go_to_time.prop("disabled", false);
+    btn_forward.prop("disabled", false);
+    btn_backward.prop("disabled", false);
   };
 
   var forward_handler = function() {
     current_index = timestamp_manager.next_index(current_index);
     set_for_date_from_current_index();
+    draw_map_for_current_index();
   };
 
   var backward_handler = function() {
     current_index = timestamp_manager.prev_index(current_index);
     set_for_date_from_current_index();
+    draw_map_for_current_index();
   };
 
   var set_for_date = function(date) {
@@ -89,6 +104,28 @@
     var timestamp = timestamp_manager.get_timestamp(current_index);
     var date = timestamp_manager.timestamp_to_date(timestamp);
     set_for_date(date);
+  };
+
+  var draw_map_for_current_index = function() {
+    var timestamp = timestamp_manager.get_timestamp(current_index);
+    disable_all();
+    var date = data_accessor.get_data_for_timestamp(timestamp, function(data) {
+      data = JSON.parse(data);
+      var result = data.result;
+      var lat;
+      var lon;
+      var num_connected;
+      for (var i = 0; i < result.length; i++) {
+        lat = result[i].Latitude;
+        lon = result[i].Longitude;
+        num_connected = result[i].NumConnected;
+        if (!circle_for_lat_lon.hasOwnProperty([lat, lon])) {
+          circle_for_lat_lon[[lat, lon]] = L.circle([lat, lon], 100).addTo(map);
+        }
+        circle_for_lat_lon[[lat, lon]].setRadius(num_connected / 2);
+      }
+      enable_all();
+    });
   };
 
   var extract_timestamp = function() {
@@ -106,35 +143,4 @@
         0);
     return date.getTime() / 1000;
   };
-
-
-  $(document).ready(function() {
-    async.series([
-      setup_map,
-      setup_variables,
-      setup_handlers
-    ]);
-    return;
-
-    am_pm = $("#am-pm");
-    time_hr = $("#time-hr");
-    time_min = $("#time-min");
-    go_to_time_button = $("#go-to-time");
-    animate_button = $("#animate");
-
-    am_pm.click(am_pm_handler);
-    go_to_time_button.click(go_to_time_handler);
-    animate_button.click(animate_handler);
-
-    $.get("util/data.csv", function(data) {
-      data_accessor = Global.DataAccessor(data);
-    });
-
-    map = L.map('map').setView([42.360183,-71.090469], 17);
-
-    // add an OpenStreetMap tile layer
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-  });
 })();

@@ -43,14 +43,17 @@ body {
 .pretty-button:hover {
   background-color: rgb(200, 212, 148);
 }
-#btn_go_to_time.disabled {
-  background-color: gray;
-}
 .red:hover {
   background-color: rgba(230, 0, 0, 1.0);
 }
 .red {
   background-color: red;
+}
+.disabled {
+  background-color: gray;
+}
+.disabled:hover {
+  background-color: gray;
 }
 .pretty-picker {
   font-size: 15pt;
