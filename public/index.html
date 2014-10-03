@@ -2,8 +2,10 @@
 <html>
   <head>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/bower_components/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="/bower_components/pickadate/lib/themes/default.css" />
+    <link rel="stylesheet" href="/bower_components/pickadate/lib/themes/default.date.css" />
+    <link rel="stylesheet" href="/bower_components/pickadate/lib/themes/default.time.css" />
     <link rel="stylesheet" href="/css/main.css" />
   </head>
   <body>
@@ -11,18 +13,20 @@
     <div id="control">
       <h1 id="control-header">Select a time</h1>
       <div id="time-div">
-        <input type="text" id="time-hr" maxLength="2" class="digital-font time-input" value="12">
-        <span class="digital-font">:</span>
-        <input type="text" id="time-min" maxLength="2" class="digital-font time-input" value="00">
-        <button id="am-pm" class="digital-font">AM</button>
+        <input id="date_picker" type="text" class="pretty-picker" placeholder="Pick a date...">
+        <input id="time_picker" type="text" class="pretty-picker" placeholder="Pick a time...">
       </div>
-      <button id="go-to-time" class="pretty-button">Jump To Time</button>
-      <button id="animate" class="pretty-button">Animate</button>
+      <button id="btn_backward" class="pretty-button">Backward</button>
+      <button id="btn_go_to_time" class="pretty-button">Jump To Time</button>
+      <button id="btn_forward" class="pretty-button">Forward</button>
     </div>
     <script src="/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="/bower_components/leaflet/dist/leaflet.js"></script>
     <script src="/bower_components/async/lib/async.js"></script>
     <script src="/bower_components/simple-lru/simple-lru.min.js"></script>
+    <script src="/bower_components/pickadate/lib/picker.js"></script>
+    <script src="/bower_components/pickadate/lib/picker.date.js"></script>
+    <script src="/bower_components/pickadate/lib/picker.time.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/timestamp-manager.js"></script>
     <script src="/js/data-accessor.js"></script>

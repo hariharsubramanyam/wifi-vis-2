@@ -41,6 +41,17 @@
     }
 
     /**
+     * Given an index into the array, returns the previous index in the array.
+     * If initialization is NOT done, then it returns undefined.
+     */
+    var prev_index = function(index) {
+      if (timestamps === undefined) {
+        return undefined;
+      }
+      return Math.max(index - 1, 0);
+    }
+
+    /**
      * Returns a timestamp for the given index.
      * If initialization is NOT done, then it returns undefined.
      */
@@ -74,6 +85,7 @@
     that.initialize = initialize;
     that.nearby_index = nearby_index;
     that.next_index = next_index;
+    that.prev_index = prev_index;
     that.get_timestamp = get_timestamp;
     that.timestamp_to_date = timestamp_to_date;
     that.date_to_timestamp = date_to_timestamp;

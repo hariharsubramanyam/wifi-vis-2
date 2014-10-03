@@ -28,21 +28,7 @@ body {
   margin-right: auto;
   text-align:center;
 }
-#am-pm {
-  height: 40px;
-  font-size: 35px;
-  display: inline;
-  background-color: transparent;
-  border: 2px white solid;
-  width: 80px;
-}
-#am-pm:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-#am-pm:active {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-#go-to-time {
+#btn_go_to_time {
   margin-top: 10px;
 }
 .pretty-button {
@@ -57,18 +43,7 @@ body {
 .pretty-button:hover {
   background-color: rgb(200, 212, 148);
 }
-.time-input {
-  display: inline;
-  background-color: rgba(0,0,0,0.0);
-  width: 70px;
-  border: 2px white solid;
-}
-.digital-font {
-  color: white;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 40px;
-}
-#go-to-time.disabled {
+#btn_go_to_time.disabled {
   background-color: gray;
 }
 .red:hover {
@@ -76,4 +51,13 @@ body {
 }
 .red {
   background-color: red;
+}
+.pretty-picker {
+  font-size: 15pt;
+  height: 30px;
+  width: 200px;
+  background-color: black;
+  color: white;
+  border-radius: 10px;
+  border: 2px dotted white;
 }

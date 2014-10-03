@@ -1,23 +1,4 @@
 (function() {
-  var am_pm;
-  var time_hr;
-  var time_min;
-  var go_to_time_button;
-  var animate_button;
-  var data_accessor = null;
-  var map;
-  var circle_for_lat_lon = {};
-  var animate_inverval = null;
-  var timestamp_manager = new Global.TimestampManager();
-  var data_accessor = new Global.DataAccessor();
-
-  var am_pm_handler = function() {
-    if (am_pm.text() == "PM") {
-      am_pm.text("AM");
-    } else {
-      am_pm.text("PM");
-    }
-  };
 
   var draw_circles_for_data = function(access_data) {
     var wifi_point;
@@ -36,93 +17,102 @@
     }
   }; 
 
-  var animate_handler = function() {
-    if (animate_button.text() === "Stop") {
-      clearInterval(animate_inverval);
-      animate_button.text("Animate");
-      go_to_time_button.removeClass("disabled");
-      go_to_time_button.prop("disabled", false);
-      animate_button.removeClass("red");
-      return;
-    }
-    var data = go_to_time_handler();
-    var timestamp;
-    var index;
-    var hr;
-    var min;
-    var am_or_pm;
+  var map;
+  var timestamp_manager;
+  var data_accessor;
+  var date_picker;
+  var date_selector;
+  var time_picker;
+  var time_selector;
+  var btn_go_to_time;
+  var btn_forward;
+  var btn_backward;
+  var current_index;
 
-    go_to_time_button.addClass("disabled");
-    go_to_time_button.prop("disabled", true);
-    animate_button.addClass("red");
-    animate_button.text("Stop");
-    clearInterval(animate_inverval);
-    animate_inverval = setInterval(function() {
-      index = data.new_index;
-      data = data_accessor.data_for_index(index);
-      timestamp = data.data.timestamp;
-      hr = Math.floor(timestamp / 24);
-      min = timestamp % 60;
-      if (hr > 11) {
-        am_or_pm = "PM";
-        hr -= 12;
-      } else {
-        am_or_pm = "AM";
-      }
-      if (hr == 0) {
-        hr = 12;
-      }
-      am_pm.text(am_or_pm);
-      time_hr.val(pad_string(hr));
-      time_min.val(pad_string(min));
-
-      draw_circles_for_data(data.data.accesses);
-    }, 100);
+  var setup_map = function(callback) {
+    map = L.map('map').setView([42.360183,-71.090469], 17);
+    // add an OpenStreetMap tile layer
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    callback(null);
   };
 
-  var pad_string = function(s) {
-    s = "" + s;
-    if (s.length == 0) {
-      return "00";
-    }
-    if (s.length == 1) {
-      return "0" + s;
-    }
-    return s;
+  var setup_variables = function(callback) {
+    data_accessor = Global.DataAccessor();
+    timestamp_manager = Global.TimestampManager();
+    date_picker = $("#date_picker").pickadate();
+    time_picker = $("#time_picker").pickatime({"interval": 1});
+    date_selector = date_picker.pickadate("picker");
+    time_selector = time_picker.pickatime("picker");
+    btn_backward = $("#btn_backward");
+    btn_go_to_time = $("#btn_go_to_time");
+    btn_forward = $("#btn_forward");
+    timestamp_manager.initialize(callback);
   };
 
-  var go_to_time_handler = function(hour, minute, am_or_pm) {
-    var hr = hour;
-    var min = minute;
-    var am_pm_string = am_or_pm;
-    if (am_or_pm === undefined) {
-      hr = parseInt(time_hr.val(), 10);
-      min = parseInt(time_min.val(), 10);
-      am_pm_string = am_pm.text();
-    }
-    if (data_accessor !== null) {
-      var index = data_accessor.index_for_time(hr, min, am_pm_string);
-      var data = data_accessor.data_for_index(index);
-      console.log(data);
-      draw_circles_for_data(data.data.accesses);
-      return data;
-    }
-    return null;
+  var setup_handlers = function(callback) {
+    btn_go_to_time.click(go_to_time_handler);
+    btn_forward.click(forward_handler);
+    btn_backward.click(backward_handler);
+    current_index = 0;
+    set_for_date_from_current_index();
+    callback(null);
   };
+
+  var go_to_time_handler = function() {
+    var timestamp = extract_timestamp();
+    if (timestamp === null) {
+      alert("You must pick a date and a time");
+    } else {
+      current_index = timestamp_manager.nearby_index(timestamp);
+      set_for_date_from_current_index();
+    }
+  };
+
+  var forward_handler = function() {
+    current_index = timestamp_manager.next_index(current_index);
+    set_for_date_from_current_index();
+  };
+
+  var backward_handler = function() {
+    current_index = timestamp_manager.prev_index(current_index);
+    set_for_date_from_current_index();
+  };
+
+  var set_for_date = function(date) {
+    date_selector.set("select", [date.getFullYear(), date.getMonth(), date.getDate()]);
+    time_selector.set("select", [date.getHours(), date.getMinutes()]);
+  };
+
+  var set_for_date_from_current_index = function() {
+    var timestamp = timestamp_manager.get_timestamp(current_index);
+    var date = timestamp_manager.timestamp_to_date(timestamp);
+    set_for_date(date);
+  };
+
+  var extract_timestamp = function() {
+    var date_select = date_selector.get("select");
+    var time_select = time_selector.get("select");
+    if (date_select === null || time_select === null) {
+      return null;
+    }
+    var date = new Date(date_select.year,
+        date_select.month,
+        date_select.date,
+        time_select.hour,
+        time_select.mins,
+        0,
+        0);
+    return date.getTime() / 1000;
+  };
+
 
   $(document).ready(function() {
     async.series([
-      function(callback) {
-        timestamp_manager.initialize(callback);
-      },
-      function(callback) {
-        var time = 123;
-        var index = timestamp_manager.nearby_index(time);
-        time = timestamp_manager.get_timestamp(index);
-        data_accessor.get_data_for_timestamp(time, function(data) {
-          console.log(data);
-        });
-      }
+      setup_map,
+      setup_variables,
+      setup_handlers
     ]);
     return;
 

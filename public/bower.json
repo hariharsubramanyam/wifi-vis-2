@@ -5,6 +5,7 @@
     "leaflet": "*",
     "jquery": "~2.1.1",
     "async": "~0.9.0",
-    "simple-lru": "~0.0.3"
+    "simple-lru": "~0.0.3",
+    "pickadate": "~3.5.4"
   }
 }
