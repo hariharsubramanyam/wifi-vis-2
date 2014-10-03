@@ -8,6 +8,8 @@
   var map;
   var circle_for_lat_lon = {};
   var animate_inverval = null;
+  var timestamp_manager = new Global.TimestampManager();
+  var data_accessor = new Global.DataAccessor();
 
   var am_pm_handler = function() {
     if (am_pm.text() == "PM") {
@@ -108,8 +110,22 @@
     return null;
   };
 
-
   $(document).ready(function() {
+    async.series([
+      function(callback) {
+        timestamp_manager.initialize(callback);
+      },
+      function(callback) {
+        var time = 123;
+        var index = timestamp_manager.nearby_index(time);
+        time = timestamp_manager.get_timestamp(index);
+        data_accessor.get_data_for_timestamp(time, function(data) {
+          console.log(data);
+        });
+      }
+    ]);
+    return;
+
     am_pm = $("#am-pm");
     time_hr = $("#time-hr");
     time_min = $("#time-min");
