@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/wifi");
 
 var data_for_timestamp_route = require("./routes/for_timestamp").initialize(mongoose);
 
