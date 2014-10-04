@@ -22,10 +22,21 @@
     ]);
   });
 
+  var getDataColor = function(num_connected) {
+    return num_connected > 30  ? '#800026' :
+           num_connected > 25  ? '#BD0026' :
+           num_connected > 20  ? '#E31A1C' :
+           num_connected > 15  ? '#FC4E2A' :
+           num_connected > 10  ? '#FD8D3C' :
+           num_connected > 8  ? '#FEB24C' :
+           num_connected > 3  ? '#FED976' :
+                                 '#FFEDA0';
+  };
+
   var setup_map = function(callback) {
     map = L.map('map').setView([42.360183,-71.090469], 17);
     // add an OpenStreetMap tile layer
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     callback(null);
@@ -122,7 +133,8 @@
         if (!circle_for_lat_lon.hasOwnProperty([lat, lon])) {
           circle_for_lat_lon[[lat, lon]] = L.circle([lat, lon], 100).addTo(map);
         }
-        circle_for_lat_lon[[lat, lon]].setRadius(num_connected / 2);
+        circle_for_lat_lon[[lat, lon]].setRadius(3);
+        circle_for_lat_lon[[lat, lon]].setStyle({color: getDataColor(num_connected)});
       }
       enable_all();
     });
